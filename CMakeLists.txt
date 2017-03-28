@@ -4,7 +4,7 @@ project (mih)
 find_package(HDF5 REQUIRED)
 
 #set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O3 -march=native -fopenmp -DNDEBUG -std=c++14")
-set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O0 -g -fopenmp -std=c++14")
+set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O3 -mtune=native -march=native -DNDEBUG -fopenmp -std=c++14")
 # -Wall -march=native -mtune=native")
 
 include_directories ("${PROJECT_SOURCE_DIR}/include" "${HDF5_INCLUDE_DIRS}")
