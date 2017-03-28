@@ -3,7 +3,8 @@ project (mih)
 
 find_package(HDF5 REQUIRED)
 
-set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O2 -fopenmp -DNDEBUG")
+#set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O3 -march=native -fopenmp -DNDEBUG -std=c++14")
+set (CMAKE_CXX_FLAGS "-DSINGLE_CORE -O0 -g -fopenmp -std=c++14")
 # -Wall -march=native -mtune=native")
 
 include_directories ("${PROJECT_SOURCE_DIR}/include" "${HDF5_INCLUDE_DIRS}")
@@ -11,7 +12,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/include" "${HDF5_INCLUDE_DIRS}")
 add_library(mihlib src/array32.cpp src/mihasher.cpp src/sparse_hashtable.cpp src/bucket_group.cpp src/reorder.cpp)
 
 add_executable (mih interface/mih_interface.cpp interface/loadVar.cpp interface/saveRes.cpp)
+add_executable (mihwrapper wrapper/frontend.c wrapper/mihwrapper.cpp)
 target_link_libraries (mih ${HDF5_LIBRARIES} mihlib)
+target_link_libraries (mihwrapper mihlib)
 
 project (linscan)
 add_executable (linscan interface/linscan_interface.cpp src/linscan.cpp interface/loadVar.cpp interface/saveRes.cpp)
