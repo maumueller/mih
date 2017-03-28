@@ -12,7 +12,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/include" "${HDF5_INCLUDE_DIRS}")
 add_library(mihlib src/array32.cpp src/mihasher.cpp src/sparse_hashtable.cpp src/bucket_group.cpp src/reorder.cpp)
 
 add_executable (mih interface/mih_interface.cpp interface/loadVar.cpp interface/saveRes.cpp)
-add_executable (mihwrapper wrapper/frontend.c wrapper/mihwrapper.cpp)
+add_executable (mihwrapper wrapper/frontend.c wrapper/wrapper.cpp)
 target_link_libraries (mih ${HDF5_LIBRARIES} mihlib)
 target_link_libraries (mihwrapper mihlib)
 
