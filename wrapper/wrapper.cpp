@@ -18,7 +18,7 @@
 extern "C" {
 
 static int r = 0;
-static int chunks = 1;
+static float chunk_factor = 1;
 static int B = 0;
 
 // Note that MIH assumes that the bitlength of the input 
@@ -35,14 +35,24 @@ bool configure(const char* var, const char* val) {
       r = k;
       return true;
     }
-  } else if (strcmp(var, "chunks") == 0) {
+  } else if (strcmp(var, "d") == 0) {
     char* end;
     errno = 0;
     long k = strtol(val, &end, 10);
     if (errno != 0 || *val == 0 || *end != 0 || k < 0) {
       return false;
     } else {
-      chunks = k;
+      B = k;
+      return true;
+    }
+  } else if (strcmp(var, "chunk-factor") == 0) {
+    char* end;
+    errno = 0;
+    float k = strtof(val, &end);
+    if (errno != 0 || *val == 0 || *end != 0 || k < 0) {
+      return false;
+    } else {
+      chunk_factor = k;
       return true;
     }
   } else return false;
@@ -83,10 +93,7 @@ static UINT32** numres = nullptr;
 static int* order = nullptr;
 
 UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
-  size_t b = vec[0].size();
-  std::cerr << b << std::endl;
   size_t n = vec.size();
-  std::cerr << n << std::endl;
   UINT8* dataset = new UINT8[n * b/8];
   for (int i = 0; i < n; i++) {
       // process each chunk
@@ -102,13 +109,11 @@ UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
 }
 
 void end_train(void) {
-  size_t b = pointset[0].size();
-  B = b;
   size_t n = pointset.size();
   dataset = create_dataset(pointset);
   pointset.clear();
   pointset.shrink_to_fit();
-  if (r > 0) { 
+  if (r > 0) {
     r = n / r; // use r-fraction of the dataset for ordering.
 	order = new int[B];
 	greedyorder(order, dataset, r, B, chunks);
@@ -117,8 +122,9 @@ void end_train(void) {
     delete[] dataset;
     dataset = new_dataset;
   }
-  ds = new mihasher(b, chunks);
-  ds->populate(dataset, n, b/8);
+  int chunks = B / (5 + chunk_factor * 32);
+  ds = new mihasher(B, chunks);
+  ds->populate(dataset, n, B/8);
   stats = new qstat[1];
 }
 
