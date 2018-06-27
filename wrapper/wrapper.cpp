@@ -110,7 +110,7 @@ void end_train(void) {
   pointset.shrink_to_fit();
   if (r > 0) { 
     r = n / r; // use r-fraction of the dataset for ordering.
-	int* order = new int[B];
+	order = new int[B];
 	greedyorder(order, dataset, r, B, chunks);
     UINT8* new_dataset = new UINT8[n * B/8];
     reorder(new_dataset, dataset, n, B, order);
