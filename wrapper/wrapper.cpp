@@ -111,7 +111,7 @@ UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
 
 void end_train(void) {
   size_t n = pointset.size();
-  int chunks = B / (5 + chunk_factor * 32);
+  int chunks = ceil((double) B / (5 + chunk_factor * 32));
   dataset = create_dataset(pointset);
   pointset.clear();
   pointset.shrink_to_fit();
