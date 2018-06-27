@@ -91,18 +91,19 @@ static UINT8* querypoint = nullptr;
 static UINT32** results = nullptr;
 static UINT32** numres = nullptr;
 static int* order = nullptr;
+static int* chunks = 0;
 
 UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
   size_t n = vec.size();
-  UINT8* dataset = new UINT8[n * b/8];
+  UINT8* dataset = new UINT8[n * B/8];
   for (int i = 0; i < n; i++) {
       // process each chunk
-      for (int j = 0; j < b/8; j++) {
+      for (int j = 0; j < B/8; j++) {
           UINT8 t = 0;
           for (int k = 0; k < 8; k++) {
               t += (vec[i][j * 8 + k] << (7 - k));
           }
-          dataset[i * b/8 + j] = t;
+          dataset[i * B/8 + j] = t;
       }
   }
   return dataset;
@@ -110,6 +111,7 @@ UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
 
 void end_train(void) {
   size_t n = pointset.size();
+  int chunks = B / (5 + chunk_factor * 32);
   dataset = create_dataset(pointset);
   pointset.clear();
   pointset.shrink_to_fit();
@@ -122,7 +124,6 @@ void end_train(void) {
     delete[] dataset;
     dataset = new_dataset;
   }
-  int chunks = B / (5 + chunk_factor * 32);
   ds = new mihasher(B, chunks);
   ds->populate(dataset, n, B/8);
   stats = new qstat[1];
