@@ -44,7 +44,7 @@ bool configure(const char* var, const char* val) {
       return false;
     } else {
       B = k;
-      blocks = ceil(B / 8);
+      blocks = ceil(B / 8.0);
       return true;
     }
   } else if (strcmp(var, "chunk-factor") == 0) {
@@ -180,10 +180,14 @@ void end_query(void) {
     if (order != nullptr) {
         delete[] order;
     }
-    delete[] results[0];
-    delete[] results;
-    delete[] numres[0];
-    delete[] numres;
+    if (results != nullptr) {
+        delete[] results[0];
+        delete[] results;
+    }
+    if (numres != nullptr) {
+        delete[] numres[0];
+        delete[] numres;
+    }
 }
 
 }
