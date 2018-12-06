@@ -63,7 +63,7 @@ void greedyorder (int * order, UINT8 * B, size_t N, int d, int m) {
 	int *C = new int [d * d];	// Correlation matrix, column major
 
 	UINT8 mask [] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-	UINT8 * BB = new UINT8 [N * d]; // Unpacked bits, column major
+	UINT8 * BB = new UINT8 [(N + 1) * d]; // Unpacked bits, column major
 	
 
 	for (size_t i=0; i<N; i++) {
@@ -144,8 +144,9 @@ void greedyorder (int * order, UINT8 * B, size_t N, int d, int m) {
 	
 	int b=0;
 	for (int c=0; c<m; c++) {
-		for (int i=0; i<chunks[c].size(); i++)
+		for (int i=0; i<chunks[c].size(); i++) {
 			order[b++] = chunks[c][i];
+        }
 	}	
 	
 	for (int c=0; c<m; c++) {
@@ -155,9 +156,9 @@ void greedyorder (int * order, UINT8 * B, size_t N, int d, int m) {
 	}
 	
 	delete [] chunks;
-	delete freebits;
-	delete C;
-	delete BB;
+	delete []  freebits;
+	delete [] C;
+	delete [] BB;
 	
 }
 
@@ -167,8 +168,8 @@ void reorder(UINT8 * out, UINT8 * in, size_t N, int d, int * order) {
 // out and in are the same size, both are d x N, column major
 
 	UINT8 mask [] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-	
-	memset(out, 0, (size_t)N * d/8);
+
+	memset(out, 0, (size_t)N * ceil(d/8.0));
 	
 	int * order_byte = new int [d];
 	int * order_bit = new int [d];
