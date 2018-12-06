@@ -20,6 +20,7 @@ extern "C" {
 static int r = 0;
 static float chunk_factor = 1;
 static int B = 0;
+static int blocks = 0;
 
 // Note that MIH assumes that the bitlength of the input 
 // divided by the number of chunks is between 6 and 37
@@ -43,6 +44,7 @@ bool configure(const char* var, const char* val) {
       return false;
     } else {
       B = k;
+      blocks = B / 8 + 1;
       return true;
     }
   } else if (strcmp(var, "chunk-factor") == 0) {
@@ -95,15 +97,15 @@ static int* chunks = 0;
 
 UINT8* create_dataset(std::vector<std::vector<bool>> vec) {
   size_t n = vec.size();
-  UINT8* dataset = new UINT8[n * B/8];
+  UINT8* dataset = new UINT8[n * blocks];
   for (int i = 0; i < n; i++) {
       // process each chunk
-      for (int j = 0; j < B/8; j++) {
+      for (int j = 0; j < blocks; j++) {
           UINT8 t = 0;
           for (int k = 0; k < 8; k++) {
               t += (vec[i][j * 8 + k] << (7 - k));
           }
-          dataset[i * B/8 + j] = t;
+          dataset[i * blocks + j] = t;
       }
   }
   return dataset;
@@ -119,13 +121,13 @@ void end_train(void) {
     r = n / r; // use r-fraction of the dataset for ordering.
 	order = new int[B];
 	greedyorder(order, dataset, r, B, chunks);
-    UINT8* new_dataset = new UINT8[n * B/8];
+    UINT8* new_dataset = new UINT8[n * blocks];
     reorder(new_dataset, dataset, n, B, order);
     delete[] dataset;
     dataset = new_dataset;
   }
   ds = new mihasher(B, chunks);
-  ds->populate(dataset, n, B/8);
+  ds->populate(dataset, n, blocks);
   stats = new qstat[1];
 }
 
@@ -149,7 +151,7 @@ bool prepare_query(const char* entry) {
   numres[0] = new UINT32[B + 1];
   querypoint = create_dataset(queryset);
   if (r > 0) {
-      UINT8* new_query = new UINT8[B/8];
+      UINT8* new_query = new UINT8[blocks];
       reorder(new_query, querypoint, 1, B, order);
       delete[] querypoint;
       querypoint = new_query;
@@ -160,7 +162,7 @@ bool prepare_query(const char* entry) {
 size_t query(const char* entry, size_t k) {
   results[0] = new UINT32[k];
   ds->setK(k);
-  ds->batchquery(results[0], numres[0], stats, querypoint, 1, B/8);
+  ds->batchquery(results[0], numres[0], stats, querypoint, 1, blocks);
   return k; // TODO 
 }
 
