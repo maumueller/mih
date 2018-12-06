@@ -44,7 +44,7 @@ bool configure(const char* var, const char* val) {
       return false;
     } else {
       B = k;
-      blocks = B / 8 + 1;
+      blocks = ceil(B / 8);
       return true;
     }
   } else if (strcmp(var, "chunk-factor") == 0) {
